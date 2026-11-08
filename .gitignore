@@ -1,0 +1,8 @@
+# Fichiers du Mac, inutiles dans le projet
+.DS_Store
+
+# Réglages locaux de l'éditeur et des outils
+.vscode/
+
+# Le cahier des charges reste sur l'ordinateur, il n'est pas publié
+Aventure Éducative — Prompt de développement.md
