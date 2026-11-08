@@ -27,12 +27,17 @@
   --texte: #23324a;           /* bleu nuit, bien lisible */
   --texte-doux: #5a6a85;
   --principal: #2f6fd6;       /* bleu de l'application */
+  --principal-fonce: #1f55ad;
+  --principal-clair: #e3edfc;
   --soleil: #ffc93c;
+  --aide: #fff4cf;            /* fond des messages d'aide : jaune doux, jamais rouge */
+  --bordure: #d5dceb;
   --ombre: 0 8px 24px rgba(35, 50, 74, 0.12);
 
   --taille-texte: 22px;       /* jamais moins de 20 px (cahier des charges) */
   --arrondi: 28px;
   --espace: 24px;
+  --cible: 64px;              /* taille minimale d'un bouton pour un doigt d'enfant */
 }
 
 /* Tout le monde calcule sa taille de la même manière,
@@ -61,6 +66,42 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Les boutons et champs prennent la même police que le reste */
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* « hidden » doit toujours cacher, même si une autre règle dit le contraire */
+[hidden] {
+  display: none !important;
+}
+
+/* Cache un élément aux yeux, mais pas aux lecteurs d'écran */
+.cache-visuel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Le titre reçoit le « curseur invisible » à chaque changement d'écran :
+   pas besoin d'un cadre autour */
+h1:focus {
+  outline: none;
+}
+
+.sans-js {
+  margin: 24px 16px;
+  text-align: center;
+}
+
 /* Un « écran » occupe toute la hauteur visible.
    Les marges latérales respectent l'encoche des téléphones. */
 .ecran {
@@ -76,26 +117,15 @@ body {
     max(16px, env(safe-area-inset-left));
 }
 
-/* ----- Écran de bienvenue ----- */
-
-.carte-bienvenue {
+/* La grande carte blanche au centre de chaque écran */
+.carte {
   width: 100%;
-  max-width: 560px;
+  max-width: 640px;
   background: var(--carte);
   border-radius: var(--arrondi);
   box-shadow: var(--ombre);
-  padding: 40px 24px;
+  padding: 32px 20px;
   text-align: center;
-}
-
-/* Un simple soleil en attendant la mascotte */
-.soleil {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 24px;
-  border-radius: 50%;
-  background: var(--soleil);
-  box-shadow: 0 0 0 14px rgba(255, 201, 60, 0.25);
 }
 
 h1 {
@@ -105,6 +135,12 @@ h1 {
   color: var(--principal);
 }
 
+.nom-appli {
+  margin: 0 0 4px;
+  color: var(--texte-doux);
+  font-weight: 700;
+}
+
 .sous-titre {
   margin: 0 0 16px;
   font-size: 26px;
@@ -112,15 +148,285 @@ h1 {
 }
 
 .message {
-  margin: 0;
+  margin: 0 0 16px;
   color: var(--texte-doux);
 }
 
-/* Petite apparition douce quand l'application est prête
+/* Un simple soleil en attendant la mascotte (étape 4) */
+.soleil {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: var(--soleil);
+  box-shadow: 0 0 0 12px rgba(255, 201, 60, 0.25);
+}
+
+/* ----- Les boutons ----- */
+
+.bouton {
+  min-height: var(--cible);
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bouton-principal {
+  background: var(--principal);
+  color: #ffffff;
+}
+
+.bouton-principal:active {
+  background: var(--principal-fonce);
+}
+
+.bouton-secondaire {
+  background: var(--carte);
+  border-color: var(--principal);
+  color: var(--principal);
+}
+
+.bouton-ajout {
+  width: 100%;
+  background: var(--principal-clair);
+  border: 3px dashed var(--principal);
+  color: var(--principal);
+}
+
+/* Un cadre bien visible quand on navigue au clavier */
+.bouton:focus-visible,
+.bouton-profil:focus-visible,
+.champ-texte:focus-visible {
+  outline: 4px solid var(--soleil);
+  outline-offset: 3px;
+}
+
+/* ----- Les images (avatars) ----- */
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  font-size: 44px;
+  line-height: 1;
+}
+
+.avatar-grand {
+  width: 128px;
+  height: 128px;
+  margin: 0 auto 16px;
+  font-size: 80px;
+}
+
+/* ----- Écran « Qui joue ? » ----- */
+
+.liste-profils {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* La liste vide ne prend pas de place */
+.liste-profils:empty {
+  display: none;
+}
+
+.bouton-profil {
+  width: 100%;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 8px;
+  background: var(--carte);
+  border: 3px solid var(--bordure);
+  border-radius: var(--arrondi);
+  cursor: pointer;
+}
+
+.bouton-profil:active {
+  border-color: var(--principal);
+  transform: scale(0.97);
+}
+
+.nom-profil {
+  font-weight: 700;
+  /* Un prénom long passe à la ligne au lieu de déborder */
+  overflow-wrap: anywhere;
+}
+
+/* ----- Écran de création ----- */
+
+#formulaire-profil {
+  text-align: left;
+}
+
+#formulaire-profil h1 {
+  text-align: center;
+}
+
+/* Chaque question de la fiche */
+.question {
+  margin: 0 0 24px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.titre-question {
+  display: block;
+  margin: 0 0 10px;
+  padding: 0;
+  font-weight: 700;
+}
+
+.champ-texte {
+  width: 100%;
+  min-height: var(--cible);
+  padding: 10px 18px;
+  border: 3px solid var(--bordure);
+  border-radius: 18px;
+  background: var(--carte);
+  font-size: 26px;
+}
+
+.champ-texte:focus {
+  border-color: var(--principal);
+}
+
+.grille-avatars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.grille-niveaux {
+  display: grid;
+  gap: 10px;
+}
+
+/* Une case à choisir : le bouton radio est caché,
+   c'est la « boîte » à côté qui se voit et change d'aspect */
+.choix {
+  display: block;
+  cursor: pointer;
+}
+
+.choix-boite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--cible);
+  height: 100%;
+  padding: 6px;
+  border: 3px solid var(--bordure);
+  border-radius: 20px;
+  background: var(--carte);
+}
+
+.grille-avatars .avatar {
+  width: 100%;
+  max-width: 72px;
+  height: auto;
+  aspect-ratio: 1;
+  font-size: 40px;
+}
+
+/* La case choisie : bordure épaisse ET coche ✓
+   (jamais une information donnée uniquement par la couleur) */
+.choix input:checked + .choix-boite {
+  position: relative;
+  border-color: var(--principal);
+  background: var(--principal-clair);
+  box-shadow: 0 0 0 3px var(--principal);
+}
+
+.choix input:checked + .choix-boite::after {
+  content: "✓";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--principal);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 30px;
+  text-align: center;
+}
+
+.choix input:focus-visible + .choix-boite {
+  outline: 4px solid var(--soleil);
+  outline-offset: 3px;
+}
+
+/* Une image déjà prise par un autre joueur : pâle et pas touchable */
+.choix input:disabled + .choix-boite {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.niveau {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 14px;
+  width: 100%;
+  padding: 4px 8px;
+}
+
+.niveau-image {
+  grid-row: span 2;
+  font-size: 36px;
+}
+
+.niveau-nom {
+  font-weight: 700;
+}
+
+.niveau-age {
+  color: var(--texte-doux);
+  font-size: 20px;
+}
+
+.message-aide {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: var(--aide);
+  font-weight: 700;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  gap: 12px;
+}
+
+.actions .bouton {
+  flex: 1 1 180px;
+}
+
+/* ----- Animations ----- */
+
+/* Petite apparition douce de la carte à chaque écran
    (la classe « pret » est ajoutée par js/app.js).
-   Sans JavaScript, la carte reste simplement visible, sans animation. */
-.pret .carte-bienvenue {
-  animation: apparition 0.6s ease both;
+   Sans JavaScript, rien ne s'anime. */
+.pret .ecran:not([hidden]) .carte {
+  animation: apparition 0.4s ease both;
 }
 
 @keyframes apparition {
@@ -134,7 +440,31 @@ h1 {
   }
 }
 
-/* Sur tablette, on agrandit un peu tout */
+/* ----- Tablette : on agrandit un peu tout ----- */
+@media (min-width: 600px) {
+  .carte {
+    padding: 40px 36px;
+  }
+
+  .liste-profils {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+
+  .grille-niveaux {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .niveau {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 8px 4px;
+  }
+
+  .niveau-image {
+    grid-row: auto;
+  }
+}
+
 @media (min-width: 768px) {
   h1 {
     font-size: 48px;
@@ -145,14 +475,18 @@ h1 {
   }
 
   .soleil {
-    width: 160px;
-    height: 160px;
+    width: 120px;
+    height: 120px;
   }
 }
 
 /* Si l'appareil demande « réduire les animations », on les coupe. */
 @media (prefers-reduced-motion: reduce) {
-  .pret .carte-bienvenue {
+  .pret .ecran:not([hidden]) .carte {
     animation: none;
+  }
+
+  .bouton-profil:active {
+    transform: none;
   }
 }

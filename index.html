@@ -1,5 +1,7 @@
 <!doctype html>
-<!-- La page d'entrée de l'application : tout commence ici. -->
+<!-- La page d'entrée de l'application : tout commence ici.
+     Elle contient plusieurs « écrans » ; un seul est visible à la fois.
+     C'est js/app.js qui décide lequel montrer. -->
 <html lang="fr">
 <head>
   <meta charset="utf-8">
@@ -11,18 +13,83 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <main class="ecran ecran-bienvenue">
-    <div class="carte-bienvenue">
+
+  <!-- Si JavaScript est coupé, on le dit gentiment -->
+  <noscript>
+    <p class="sans-js">Pour jouer, il faut activer JavaScript dans le navigateur.</p>
+  </noscript>
+
+  <!-- ===== Écran 1 : « Qui joue ? » ===== -->
+  <main id="ecran-qui-joue" class="ecran" hidden>
+    <div class="carte">
       <!-- Emplacement réservé à la mascotte (étape 4) -->
       <div class="soleil" aria-hidden="true"></div>
 
-      <h1>Aventure Éducative</h1>
-      <p class="sous-titre">Bienvenue, petit aventurier !</p>
-      <p class="message">L'aventure commence très bientôt.</p>
+      <p class="nom-appli">Aventure Éducative</p>
+      <h1 tabindex="-1">Qui joue ?</h1>
+      <p id="consigne-qui-joue" class="message"></p>
+
+      <!-- La liste des joueurs est remplie par js/app.js -->
+      <ul id="liste-profils" class="liste-profils"></ul>
+
+      <button type="button" id="bouton-nouveau" class="bouton bouton-ajout">
+        <span aria-hidden="true">＋</span> Nouveau joueur
+      </button>
+      <p id="message-complet" class="message" hidden>
+        Il y a déjà 4 joueurs : c'est le maximum.
+      </p>
     </div>
   </main>
 
-  <!-- Le comportement de l'application, chargé en dernier -->
+  <!-- ===== Écran 2 : création d'un profil ===== -->
+  <main id="ecran-creation" class="ecran" hidden>
+    <!-- « novalidate » : c'est notre code qui vérifie la fiche,
+         pour afficher des messages doux plutôt que ceux du navigateur -->
+    <form id="formulaire-profil" class="carte" novalidate>
+      <h1 tabindex="-1">Nouveau joueur</h1>
+
+      <div class="question">
+        <label for="prenom" class="titre-question">1. Ton prénom</label>
+        <input id="prenom" name="prenom" type="text" maxlength="15"
+               autocomplete="off" autocapitalize="words" spellcheck="false"
+               class="champ-texte">
+      </div>
+
+      <fieldset class="question">
+        <legend class="titre-question">2. Choisis ton image</legend>
+        <!-- Les 8 images sont ajoutées par js/app.js -->
+        <div id="choix-avatar" class="grille-avatars"></div>
+      </fieldset>
+
+      <fieldset class="question">
+        <legend class="titre-question">3. Ton niveau</legend>
+        <div id="choix-niveau" class="grille-niveaux"></div>
+      </fieldset>
+
+      <!-- Message d'aide si quelque chose manque (jamais en rouge) -->
+      <p id="message-aide" class="message-aide" role="alert" hidden></p>
+
+      <div class="actions">
+        <button type="button" id="bouton-retour" class="bouton bouton-secondaire">Retour</button>
+        <button type="submit" class="bouton bouton-principal">C'est parti !</button>
+      </div>
+    </form>
+  </main>
+
+  <!-- ===== Écran 3 : bonjour (la carte des mondes viendra à l'étape 3) ===== -->
+  <main id="ecran-bonjour" class="ecran" hidden>
+    <div class="carte">
+      <div id="bonjour-avatar" class="avatar avatar-grand" aria-hidden="true"></div>
+      <h1 id="bonjour-titre" tabindex="-1"></h1>
+      <p id="bonjour-niveau" class="sous-titre"></p>
+      <p class="message">La carte des mondes arrive bientôt.</p>
+      <button type="button" id="bouton-changer" class="bouton bouton-secondaire">Changer de joueur</button>
+    </div>
+  </main>
+
+  <!-- Le comportement de l'application, chargé en dernier.
+       profils.js d'abord : app.js s'en sert. -->
+  <script src="js/profils.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
