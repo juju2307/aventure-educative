@@ -19,6 +19,9 @@ function el(id) {
 
 // Montre un seul écran et cache les autres, comme on tourne la page d'un livre.
 function afficherEcran(idEcran) {
+  // Si Lumo parlait encore, elle se tait : on change de page
+  arreterVoix();
+
   document.querySelectorAll(".ecran").forEach((ecran) => {
     ecran.hidden = ecran.id !== idEcran;
   });
@@ -37,6 +40,17 @@ function afficherEcran(idEcran) {
   if (titre) {
     titre.focus({ preventScroll: true });
   }
+}
+
+// ----- La voix automatique -----
+
+// Les Explorateurs (6-7 ans) et les Aventuriers (8-9 ans) entendent la consigne
+// toute seule ; les Experts lisent, et peuvent toucher le haut-parleur s'ils veulent.
+function lireAutomatiquement(texte, idBulle) {
+  if (!profilActif || profilActif.niveauDepart === "expert") {
+    return;
+  }
+  parler(texte, el(idBulle).closest(".guide"));
 }
 
 // ----- Écran « Qui joue ? » -----
@@ -75,9 +89,10 @@ function afficherQuiJoue() {
   });
 
   // La consigne change selon qu'il y a déjà des joueurs ou non
-  el("consigne-qui-joue").textContent = profils.length > 0
+  // C'est Lumo qui donne la consigne, dans sa bulle
+  lumoDit("consigne-qui-joue", profils.length > 0
     ? "Touche ton image pour commencer."
-    : "Crée ton joueur pour commencer l'aventure.";
+    : "Crée ton joueur pour commencer l'aventure !");
 
   // Au-delà de 4 joueurs, le bouton « Nouveau joueur » disparaît
   const complet = profils.length >= MAX_PROFILS;
@@ -191,6 +206,8 @@ function validerCreation(evenement) {
     return;
   }
 
+  // Le joueur est créé : petit « ta-da » de joie !
+  jouerSon("joie");
   ouvrirProfil(profil);
 }
 
@@ -206,7 +223,8 @@ function ouvrirProfil(profil) {
   el("joueur-avatar").style.background = avatar.couleur;
   el("bouton-joueur").setAttribute("aria-label", "Changer de joueur (" + profil.prenom + ")");
 
-  afficherCarte();
+  // En arrivant, Lumo salue le joueur par son prénom
+  afficherCarte("Bonjour " + profilActif.prenom + " ! Choisis un monde !");
 }
 
 // Les dessins (la mer, les îles) sont dans js/dessins.js.
@@ -259,14 +277,17 @@ function construireCarte() {
   });
 }
 
-function afficherCarte() {
+// « aDire » : ce que Lumo dit à voix haute en arrivant sur la carte.
+function afficherCarte(aDire = "Choisis un monde !") {
   // Sécurité : sans joueur choisi, on revient au choix du joueur
   if (!profilActif) {
     afficherQuiJoue();
     return;
   }
   el("carte-titre").textContent = "Bonjour " + profilActif.prenom + " !";
+  lumoDit("bulle-carte", "Choisis un monde !");
   afficherEcran("ecran-carte");
+  lireAutomatiquement(aDire, "bulle-carte");
 }
 
 // ----- Un monde -----
@@ -284,7 +305,10 @@ function ouvrirMonde(monde) {
   el("monde-image").innerHTML = dessinerIle(monde, MONDES.indexOf(monde));
   el("monde-titre").textContent = monde.nom;
 
+  const consigne = "Ce monde se prépare. Touche la maison 🏠 pour revenir à la carte.";
+  lumoDit("bulle-monde", consigne);
   afficherEcran("ecran-monde");
+  lireAutomatiquement(monde.nom + ". " + consigne, "bulle-monde");
 }
 
 // ----- Démarrage -----
@@ -293,13 +317,16 @@ function demarrer() {
   // On branche chaque bouton sur ce qu'il doit faire
   el("bouton-nouveau").addEventListener("click", afficherCreation);
   el("bouton-retour").addEventListener("click", afficherQuiJoue);
-  el("bouton-maison").addEventListener("click", afficherCarte);
+  el("bouton-maison").addEventListener("click", () => afficherCarte());
   el("bouton-joueur").addEventListener("click", afficherQuiJoue);
   el("formulaire-profil").addEventListener("submit", validerCreation);
   // Dès que l'enfant corrige quelque chose, le message d'aide s'en va
   el("formulaire-profil").addEventListener("input", cacherAide);
 
   construireCarte();
+  installerLumo();
+  installerSons();
+  installerVoix();
   afficherQuiJoue();
 
   // La classe « pret » déclenche l'apparition douce des écrans (voir le CSS)

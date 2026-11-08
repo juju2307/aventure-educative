@@ -33,12 +33,17 @@
   <!-- ===== Écran 1 : « Qui joue ? » ===== -->
   <main id="ecran-qui-joue" class="ecran" hidden>
     <div class="carte">
-      <!-- Emplacement réservé à la mascotte (étape 4) -->
-      <div class="soleil" aria-hidden="true"></div>
-
       <p class="nom-appli">Aventure Éducative</p>
       <h1 tabindex="-1">Qui joue ?</h1>
-      <p id="consigne-qui-joue" class="message"></p>
+
+      <!-- Lumo, la mascotte, et sa bulle (le dessin est ajouté par js/lumo.js) -->
+      <div class="guide">
+        <button type="button" class="lumo" aria-label="Lumo, la luciole"></button>
+        <div class="bulle">
+          <p id="consigne-qui-joue" class="bulle-texte" aria-live="polite"></p>
+          <button type="button" class="bouton-ecouter" aria-label="Écouter Lumo"></button>
+        </div>
+      </div>
 
       <!-- La liste des joueurs est remplie par js/app.js -->
       <ul id="liste-profils" class="liste-profils"></ul>
@@ -90,8 +95,17 @@
   <!-- ===== Écran 3 : la carte des mondes (l'accueil du joueur) ===== -->
   <main id="ecran-carte" class="ecran ecran-carte" hidden>
     <div class="contenu-carte">
-      <h1 id="carte-titre" tabindex="-1"></h1>
-      <p class="sous-titre">Choisis un monde.</p>
+      <!-- Le titre et Lumo, côte à côte sur grand écran (gain de place pour la carte) -->
+      <div class="entete-carte">
+        <h1 id="carte-titre" tabindex="-1"></h1>
+        <div class="guide">
+          <button type="button" class="lumo" aria-label="Lumo, la luciole"></button>
+          <div class="bulle">
+            <p id="bulle-carte" class="bulle-texte" aria-live="polite">Choisis un monde !</p>
+            <button type="button" class="bouton-ecouter" aria-label="Écouter Lumo"></button>
+          </div>
+        </div>
+      </div>
       <!-- La carte au trésor : un cadre parchemin, la mer dessinée derrière,
            et les 9 îles posées dessus. Tout est fabriqué par js/app.js
            à partir de js/mondes.js. -->
@@ -110,11 +124,13 @@
       <div id="monde-image" class="monde-image" aria-hidden="true"></div>
       <h1 id="monde-titre" tabindex="-1"></h1>
       <p class="sous-titre">Bientôt !</p>
-      <p class="message">
-        Ce monde se prépare. Touche la maison
-        <span aria-hidden="true">🏠</span>
-        pour revenir à la carte.
-      </p>
+      <div class="guide">
+        <button type="button" class="lumo" aria-label="Lumo, la luciole"></button>
+        <div class="bulle">
+          <p id="bulle-monde" class="bulle-texte" aria-live="polite"></p>
+          <button type="button" class="bouton-ecouter" aria-label="Écouter Lumo"></button>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -123,6 +139,9 @@
   <script src="js/profils.js"></script>
   <script src="js/mondes.js"></script>
   <script src="js/dessins.js"></script>
+  <script src="js/voix.js"></script>
+  <script src="js/lumo.js"></script>
+  <script src="js/sons.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

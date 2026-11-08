@@ -152,14 +152,242 @@ h1 {
   color: var(--texte-doux);
 }
 
-/* Un simple soleil en attendant la mascotte (étape 4) */
-.soleil {
+/* ----- Lumo, la mascotte, et sa bulle ----- */
+
+/* Lumo à gauche, sa bulle à droite, comme dans une bande dessinée */
+.guide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 4px auto 20px;
+  max-width: 560px;
+}
+
+/* Lumo est un bouton : on peut la toucher */
+.lumo {
+  flex: 0 0 auto;
   width: 96px;
   height: 96px;
-  margin: 0 auto 20px;
+  padding: 0;
+  background: none;
+  border: 0;
   border-radius: 50%;
-  background: var(--soleil);
-  box-shadow: 0 0 0 12px rgba(255, 201, 60, 0.25);
+  cursor: pointer;
+}
+
+.lumo:focus-visible {
+  outline: 4px solid var(--soleil);
+  outline-offset: 2px;
+}
+
+.lumo-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* La bulle : blanche, bordée de jaune, avec une petite pointe vers Lumo.
+   Dedans : le texte, puis le haut-parleur pour l'écouter. */
+.bulle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 6px 6px 16px;
+  background: #ffffff;
+  border: 3px solid #f5b92e;
+  border-radius: 22px;
+  box-shadow: 0 4px 10px rgba(35, 50, 74, 0.1);
+  font-weight: 700;
+  text-align: left;
+}
+
+.bulle-texte {
+  margin: 0;
+}
+
+/* Le haut-parleur : rond, bleu, assez grand pour un doigt d'enfant */
+.bouton-ecouter {
+  flex: 0 0 auto;
+  width: var(--cible);
+  height: var(--cible);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--principal-clair);
+  color: var(--principal);
+  cursor: pointer;
+}
+
+.bouton-ecouter svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bouton-ecouter:active {
+  transform: scale(0.92);
+}
+
+.bouton-ecouter:focus-visible {
+  outline: 4px solid var(--soleil);
+  outline-offset: 2px;
+}
+
+/* Pendant que Lumo parle : les ondes du haut-parleur clignotent… */
+.parle .bouton-ecouter {
+  background: var(--principal);
+  color: #ffffff;
+}
+
+.parle .onde {
+  animation: onde 0.8s ease-in-out infinite;
+}
+
+.parle .onde-2 {
+  animation-delay: 0.2s;
+}
+
+@keyframes onde {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* …et la bouche de Lumo s'ouvre et se ferme */
+.parle .lumo-sourire {
+  display: none;
+}
+
+.parle .lumo-grand-sourire {
+  display: inline;
+  transform-box: fill-box;
+  transform-origin: center top;
+  animation: bouche 0.24s ease-in-out infinite alternate;
+}
+
+@keyframes bouche {
+  from { transform: scaleY(0.35); }
+  to { transform: scaleY(1); }
+}
+
+/* La pointe : deux petits triangles superposés (le bord jaune, puis le blanc) */
+.bulle::before,
+.bulle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-color: transparent;
+}
+
+.bulle::before {
+  left: -15px;
+  border-width: 10px 15px 10px 0;
+  border-right-color: #f5b92e;
+}
+
+.bulle::after {
+  left: -10px;
+  border-width: 7px 11px 7px 0;
+  border-right-color: #ffffff;
+}
+
+/* Les parties de Lumo tournent autour de leur propre centre */
+.lumo-lueur,
+.lumo-corps,
+.lumo-yeux,
+.lumo-aile {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.lumo-aile-g {
+  transform-origin: right bottom;
+}
+
+.lumo-aile-d {
+  transform-origin: left bottom;
+}
+
+/* Lumo flotte, bat des ailes, cligne des yeux, et sa lumière pulse */
+.lumo-corps {
+  animation: lumo-flotte 3s ease-in-out infinite;
+}
+
+.lumo-aile-g {
+  animation: lumo-aile-g 0.35s ease-in-out infinite alternate;
+}
+
+.lumo-aile-d {
+  animation: lumo-aile-d 0.35s ease-in-out infinite alternate;
+}
+
+.lumo-yeux {
+  animation: lumo-cligne 4s infinite;
+}
+
+.lumo-lueur {
+  animation: lumo-lueur 2.4s ease-in-out infinite;
+}
+
+@keyframes lumo-flotte {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes lumo-aile-g {
+  to { transform: rotate(-14deg); }
+}
+
+@keyframes lumo-aile-d {
+  to { transform: rotate(14deg); }
+}
+
+@keyframes lumo-cligne {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+
+@keyframes lumo-lueur {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
+}
+
+/* Le grand sourire est caché, sauf quand Lumo est joyeuse */
+.lumo-grand-sourire {
+  display: none;
+}
+
+.lumo-joie .lumo-sourire {
+  display: none;
+}
+
+.lumo-joie .lumo-grand-sourire {
+  display: inline;
+}
+
+/* Quand on la touche : un saut de joie, et sa lumière brille fort */
+.lumo-joie .lumo-svg {
+  animation: lumo-saut 0.6s ease;
+}
+
+.lumo-joie .lumo-lueur {
+  animation: none;
+  opacity: 0.85;
+  transform: scale(1.15);
+}
+
+@keyframes lumo-saut {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-18px) scale(1.05, 0.95); }
+  60% { transform: translateY(0) scale(0.95, 1.05); }
 }
 
 /* ----- Les boutons ----- */
@@ -679,6 +907,38 @@ h1 {
   color: var(--couleur-monde-fonce, var(--texte));
 }
 
+/* Téléphone étroit : Lumo au-dessus de sa bulle, pour laisser de la place au texte */
+@media (max-width: 479px) {
+  .guide {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .lumo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .bulle::before,
+  .bulle::after {
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .bulle::before {
+    top: -15px;
+    border-width: 0 10px 15px 10px;
+    border-color: transparent transparent #f5b92e transparent;
+  }
+
+  .bulle::after {
+    top: -10px;
+    border-width: 0 7px 11px 7px;
+    border-color: transparent transparent #ffffff transparent;
+  }
+}
+
 /* ----- Animations ----- */
 
 /* Petite apparition douce de la carte à chaque écran
@@ -735,7 +995,7 @@ h1 {
     font-size: 30px;
   }
 
-  .soleil {
+  .lumo {
     width: 120px;
     height: 120px;
   }
@@ -747,7 +1007,7 @@ h1 {
      pas plus haut que l'écran moins le titre, mais jamais moins de 560 px
      (en dessous, les îles se toucheraient) */
   .carte-aventure {
-    width: min(100%, clamp(560px, calc(100dvh - 190px), 760px));
+    width: min(100%, clamp(560px, calc(100dvh - 250px), 760px));
     aspect-ratio: 1 / 1;
     --taille-ile: 140px;
   }
@@ -763,6 +1023,26 @@ h1 {
   .ile {
     left: var(--x-large);
     top: var(--y-large);
+  }
+
+  /* Le titre et Lumo sur une seule ligne, avec une Lumo un peu plus petite */
+  .entete-carte {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 28px;
+    margin-bottom: 14px;
+  }
+
+  .entete-carte h1,
+  .entete-carte .guide {
+    margin: 0;
+  }
+
+  .entete-carte .lumo {
+    width: 84px;
+    height: 84px;
   }
 }
 
@@ -782,7 +1062,15 @@ h1 {
   .anim-vague,
   .anim-notes,
   .anim-bulles,
-  .anim-fumee {
+  .anim-fumee,
+  .lumo-corps,
+  .lumo-aile-g,
+  .lumo-aile-d,
+  .lumo-yeux,
+  .lumo-lueur,
+  .lumo-joie .lumo-svg,
+  .parle .onde,
+  .parle .lumo-grand-sourire {
     animation: none;
   }
 
