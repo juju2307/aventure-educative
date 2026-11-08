@@ -216,11 +216,10 @@ h1 {
   line-height: 1;
 }
 
-.avatar-grand {
-  width: 128px;
-  height: 128px;
-  margin: 0 auto 16px;
-  font-size: 80px;
+.avatar-petit {
+  width: 52px;
+  height: 52px;
+  font-size: 32px;
 }
 
 /* ----- Écran « Qui joue ? » ----- */
@@ -420,12 +419,273 @@ h1 {
   flex: 1 1 180px;
 }
 
+/* ----- La barre du haut : maison à gauche, joueur à droite ----- */
+
+.barre {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    10px
+    max(16px, env(safe-area-inset-left));
+  pointer-events: none;      /* la barre elle-même ne bloque pas les doigts… */
+}
+
+.bouton-rond {
+  pointer-events: auto;      /* …seuls ses boutons réagissent */
+  width: var(--cible);
+  height: var(--cible);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 3px solid var(--bordure);
+  border-radius: 50%;
+  background: var(--carte);
+  box-shadow: var(--ombre);
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.bouton-rond:active {
+  transform: scale(0.94);
+}
+
+.bouton-rond:focus-visible {
+  outline: 4px solid var(--soleil);
+  outline-offset: 3px;
+}
+
+/* Le bouton du joueur reste collé à droite, même quand la maison est cachée */
+.bouton-joueur {
+  margin-left: auto;
+}
+
+/* Quand la barre est là, on laisse de la place en haut pour ne rien cacher */
+.avec-barre .ecran {
+  padding-top: calc(max(10px, env(safe-area-inset-top)) + var(--cible) + 24px);
+}
+
+/* ----- La carte des mondes ----- */
+
+.ecran-carte {
+  align-items: flex-start;
+}
+
+.contenu-carte {
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+}
+
+/* Le parchemin est dessiné dans le SVG (bords déchirés compris) :
+   ici, on centre simplement la carte */
+.cadre-carte {
+  display: flex;
+  justify-content: center;
+}
+
+/* La carte elle-même : haute et étroite sur téléphone.
+   « position: relative » : les îles se placent par rapport à elle.
+   --taille-ile : la largeur d'une île dessinée. */
+.carte-aventure {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 330 / 790;
+  --taille-ile: 116px;
+}
+
+/* Le parchemin et la mer dessinés, derrière les îles */
+.fond-mer {
+  position: absolute;
+  inset: 0;
+}
+
+/* L'ombre suit la forme déchirée du papier, comme une vraie feuille posée */
+.fond-mer svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 14px rgba(35, 50, 74, 0.25));
+}
+
+/* Sur téléphone, on montre la carte « portrait » et on cache la carrée */
+.mer-large {
+  display: none !important;
+}
+
+.iles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  inset: 0;
+}
+
+/* Une île = un bouton posé sur la carte à sa place (--x, --y).
+   Le décalage vers le haut met le CENTRE de l'herbe sur le chemin. */
+.ile {
+  position: absolute;
+  left: var(--x-portrait);
+  top: var(--y-portrait);
+  transform: translate(-50%, calc(var(--taille-ile) * -0.56));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.ile:focus-visible {
+  outline: 4px solid var(--soleil);
+  outline-offset: 4px;
+}
+
+/* Le dessin garde les proportions de l'île (160 de large pour 140 de haut) */
+.ile-dessin {
+  position: relative;
+  display: block;
+  width: var(--taille-ile);
+  aspect-ratio: 160 / 140;
+  transition: transform 0.15s ease;
+}
+
+.ile:active .ile-dessin {
+  transform: scale(0.94);
+}
+
+.ile-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* L'étiquette « Bientôt ! », posée sur la plage : du texte, pas seulement une couleur */
+.ile-bientot {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 2px solid var(--couleur-monde-fonce);
+  box-shadow: 0 2px 4px rgba(10, 60, 110, 0.25);
+  color: var(--texte);
+  font-size: 20px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Le nom du monde, sur un ruban de sa couleur aux bouts découpés */
+.ile-nom {
+  margin-top: 14px;
+  padding: 0 18px;
+  background: var(--couleur-monde-fonce);
+  /* La découpe en « queue d'aronde » des deux bouts du ruban */
+  clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 50%, 100% 100%, 0 100%, 9px 50%);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* ----- Petites animations de la carte (très douces) ----- */
+
+/* Les éléments SVG tournent et bougent autour de leur propre centre */
+.anim-bateau,
+.anim-notes,
+.anim-bulles,
+.anim-fumee {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.anim-bateau {
+  animation: tangage 4s ease-in-out infinite;
+}
+
+@keyframes tangage {
+  0%, 100% { transform: rotate(-3deg) translateY(0); }
+  50% { transform: rotate(3deg) translateY(-2px); }
+}
+
+.anim-vague {
+  animation: scintille 3.5s ease-in-out infinite;
+}
+
+@keyframes scintille {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.25; }
+}
+
+.anim-notes {
+  animation: flotte 3s ease-in-out infinite;
+}
+
+.anim-bulles,
+.anim-fumee {
+  animation: monte 2.8s ease-in-out infinite;
+}
+
+@keyframes flotte {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes monte {
+  0% { transform: translateY(2px); opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { transform: translateY(-4px); opacity: 0.4; }
+}
+
+/* ----- Un monde (écran « Bientôt ! ») ----- */
+
+/* Tout l'écran prend la couleur pâle du monde visité */
+.ecran-monde {
+  background: var(--couleur-monde-clair, var(--fond));
+}
+
+/* L'île du monde, en grand, posée sur un rond d'eau */
+.monde-image {
+  width: 240px;
+  max-width: 100%;
+  aspect-ratio: 160 / 140;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #aee6fb 60%, rgba(174, 230, 251, 0));
+}
+
+.monde-image svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ecran-monde .sous-titre {
+  color: var(--couleur-monde-fonce, var(--texte));
+}
+
 /* ----- Animations ----- */
 
 /* Petite apparition douce de la carte à chaque écran
    (la classe « pret » est ajoutée par js/app.js).
    Sans JavaScript, rien ne s'anime. */
-.pret .ecran:not([hidden]) .carte {
+.pret .ecran:not([hidden]) .carte,
+.pret .ecran:not([hidden]) .contenu-carte {
   animation: apparition 0.4s ease both;
 }
 
@@ -463,6 +723,7 @@ h1 {
   .niveau-image {
     grid-row: auto;
   }
+
 }
 
 @media (min-width: 768px) {
@@ -480,13 +741,54 @@ h1 {
   }
 }
 
+/* ----- Carte carrée (tablette, ordinateur) ----- */
+@media (min-width: 760px) {
+  /* Un carré qui tient dans l'écran : pas plus large que 760 px,
+     pas plus haut que l'écran moins le titre, mais jamais moins de 560 px
+     (en dessous, les îles se toucheraient) */
+  .carte-aventure {
+    width: min(100%, clamp(560px, calc(100dvh - 190px), 760px));
+    aspect-ratio: 1 / 1;
+    --taille-ile: 140px;
+  }
+
+  .mer-portrait {
+    display: none !important;
+  }
+
+  .mer-large {
+    display: block !important;
+  }
+
+  .ile {
+    left: var(--x-large);
+    top: var(--y-large);
+  }
+}
+
+/* Grand écran : des îles un peu plus grandes
+   (calculé pour qu'elles ne se chevauchent jamais) */
+@media (min-width: 1100px) {
+  .carte-aventure {
+    --taille-ile: 150px;
+  }
+}
+
 /* Si l'appareil demande « réduire les animations », on les coupe. */
 @media (prefers-reduced-motion: reduce) {
-  .pret .ecran:not([hidden]) .carte {
+  .pret .ecran:not([hidden]) .carte,
+  .pret .ecran:not([hidden]) .contenu-carte,
+  .anim-bateau,
+  .anim-vague,
+  .anim-notes,
+  .anim-bulles,
+  .anim-fumee {
     animation: none;
   }
 
-  .bouton-profil:active {
+  .bouton-profil:active,
+  .bouton-rond:active,
+  .ile:active .ile-dessin {
     transform: none;
   }
 }

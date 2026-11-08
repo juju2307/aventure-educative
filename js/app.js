@@ -1,8 +1,14 @@
 // ==========================================================
 // Le chef d'orchestre de l'application.
 // Il montre le bon écran au bon moment et réagit aux boutons.
-// Les profils eux-mêmes sont gérés par js/profils.js.
+// Les profils sont gérés par js/profils.js, la liste des mondes est dans js/mondes.js.
 // ==========================================================
+
+// Le joueur en train de jouer (null tant que personne n'est choisi).
+let profilActif = null;
+
+// Les écrans où la barre du haut (maison + joueur) est visible.
+const ECRANS_AVEC_BARRE = ["ecran-carte", "ecran-monde"];
 
 // Un petit raccourci pour attraper un élément de la page par son id.
 function el(id) {
@@ -16,6 +22,14 @@ function afficherEcran(idEcran) {
   document.querySelectorAll(".ecran").forEach((ecran) => {
     ecran.hidden = ecran.id !== idEcran;
   });
+
+  // La barre du haut n'apparaît qu'une fois un joueur choisi
+  const avecBarre = ECRANS_AVEC_BARRE.includes(idEcran);
+  el("barre").hidden = !avecBarre;
+  document.body.classList.toggle("avec-barre", avecBarre);
+  // Sur la carte, on est déjà à la maison : le bouton maison se cache
+  el("bouton-maison").hidden = idEcran === "ecran-carte";
+
   window.scrollTo(0, 0);
   // On place le « curseur invisible » sur le titre : les lecteurs d'écran
   // annoncent ainsi le nouvel écran à l'enfant qui ne voit pas bien.
@@ -28,6 +42,7 @@ function afficherEcran(idEcran) {
 // ----- Écran « Qui joue ? » -----
 
 function afficherQuiJoue() {
+  profilActif = null;
   const profils = lireProfils();
   const liste = el("liste-profils");
   liste.innerHTML = "";
@@ -179,18 +194,97 @@ function validerCreation(evenement) {
   ouvrirProfil(profil);
 }
 
-// ----- Écran « Bonjour » -----
+// ----- La carte des mondes -----
 
+// Quand un joueur est choisi : on le retient, on met son image dans la barre,
+// puis on l'emmène sur la carte.
 function ouvrirProfil(profil) {
+  profilActif = profil;
   const avatar = trouverAvatar(profil.avatar);
-  const niveau = trouverNiveau(profil.niveauDepart);
 
-  el("bonjour-avatar").textContent = avatar.image;
-  el("bonjour-avatar").style.background = avatar.couleur;
-  el("bonjour-titre").textContent = "Bonjour " + profil.prenom + " !";
-  el("bonjour-niveau").textContent = niveau.image + " " + niveau.nom;
+  el("joueur-avatar").textContent = avatar.image;
+  el("joueur-avatar").style.background = avatar.couleur;
+  el("bouton-joueur").setAttribute("aria-label", "Changer de joueur (" + profil.prenom + ")");
 
-  afficherEcran("ecran-bonjour");
+  afficherCarte();
+}
+
+// Les dessins (la mer, les îles) sont dans js/dessins.js.
+
+// Fabrique la carte une seule fois, au démarrage.
+function construireCarte() {
+  // La mer (deux versions ; le CSS montre la bonne selon la taille de l'écran)
+  el("fond-mer").innerHTML = dessinerMer("portrait") + dessinerMer("large");
+
+  const liste = el("liste-mondes");
+
+  MONDES.forEach((monde, numero) => {
+    const bouton = document.createElement("button");
+    bouton.type = "button";
+    bouton.className = "ile";
+    // La couleur et la place de l'île sont passées au CSS par des « variables »
+    bouton.style.setProperty("--couleur-monde", monde.couleur);
+    bouton.style.setProperty("--couleur-monde-fonce", monde.fonce);
+    bouton.style.setProperty("--x-portrait", monde.place.portrait[0] + "%");
+    bouton.style.setProperty("--y-portrait", monde.place.portrait[1] + "%");
+    bouton.style.setProperty("--x-large", monde.place.large[0] + "%");
+    bouton.style.setProperty("--y-large", monde.place.large[1] + "%");
+
+    // L'île dessinée, avec le monument de son monde
+    const dessin = document.createElement("span");
+    dessin.className = "ile-dessin";
+    dessin.innerHTML = dessinerIle(monde, numero);
+
+    // Un monde pas encore prêt porte l'étiquette « Bientôt ! » sur sa plage
+    if (!monde.pret) {
+      const bientot = document.createElement("span");
+      bientot.className = "ile-bientot";
+      bientot.textContent = "Bientôt !";
+      dessin.append(bientot);
+    }
+
+    // Le nom, sur un ruban de la couleur du monde
+    const nom = document.createElement("span");
+    nom.className = "ile-nom";
+    nom.textContent = monde.nom;
+
+    bouton.append(dessin, nom);
+    // Ce que lit le lecteur d'écran : le nom d'abord, puis « bientôt »
+    bouton.setAttribute("aria-label", monde.pret ? monde.nom : monde.nom + ", bientôt !");
+    bouton.addEventListener("click", () => ouvrirMonde(monde));
+
+    const ligne = document.createElement("li");
+    ligne.append(bouton);
+    liste.append(ligne);
+  });
+}
+
+function afficherCarte() {
+  // Sécurité : sans joueur choisi, on revient au choix du joueur
+  if (!profilActif) {
+    afficherQuiJoue();
+    return;
+  }
+  el("carte-titre").textContent = "Bonjour " + profilActif.prenom + " !";
+  afficherEcran("ecran-carte");
+}
+
+// ----- Un monde -----
+
+// Pour l'instant, tous les mondes affichent « Bientôt ! ».
+// Les phases suivantes ouvriront ici les vraies activités.
+function ouvrirMonde(monde) {
+  const ecran = el("ecran-monde");
+  // Le fond de l'écran prend la couleur pâle du monde
+  ecran.style.setProperty("--couleur-monde", monde.couleur);
+  ecran.style.setProperty("--couleur-monde-fonce", monde.fonce);
+  ecran.style.setProperty("--couleur-monde-clair", monde.clair);
+
+  // On montre l'île du monde en grand
+  el("monde-image").innerHTML = dessinerIle(monde, MONDES.indexOf(monde));
+  el("monde-titre").textContent = monde.nom;
+
+  afficherEcran("ecran-monde");
 }
 
 // ----- Démarrage -----
@@ -199,14 +293,16 @@ function demarrer() {
   // On branche chaque bouton sur ce qu'il doit faire
   el("bouton-nouveau").addEventListener("click", afficherCreation);
   el("bouton-retour").addEventListener("click", afficherQuiJoue);
-  el("bouton-changer").addEventListener("click", afficherQuiJoue);
+  el("bouton-maison").addEventListener("click", afficherCarte);
+  el("bouton-joueur").addEventListener("click", afficherQuiJoue);
   el("formulaire-profil").addEventListener("submit", validerCreation);
   // Dès que l'enfant corrige quelque chose, le message d'aide s'en va
   el("formulaire-profil").addEventListener("input", cacherAide);
 
+  construireCarte();
   afficherQuiJoue();
 
-  // La classe « pret » déclenche l'apparition douce des cartes (voir le CSS)
+  // La classe « pret » déclenche l'apparition douce des écrans (voir le CSS)
   document.body.classList.add("pret");
 }
 

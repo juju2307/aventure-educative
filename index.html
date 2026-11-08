@@ -19,6 +19,17 @@
     <p class="sans-js">Pour jouer, il faut activer JavaScript dans le navigateur.</p>
   </noscript>
 
+  <!-- ===== La barre du haut (visible dès qu'un joueur est choisi) =====
+       Le bouton maison est TOUJOURS en haut à gauche, le joueur en haut à droite. -->
+  <header id="barre" class="barre" hidden>
+    <button type="button" id="bouton-maison" class="bouton-rond" aria-label="Retour à la carte">
+      <span aria-hidden="true">🏠</span>
+    </button>
+    <button type="button" id="bouton-joueur" class="bouton-rond bouton-joueur">
+      <span id="joueur-avatar" class="avatar avatar-petit" aria-hidden="true"></span>
+    </button>
+  </header>
+
   <!-- ===== Écran 1 : « Qui joue ? » ===== -->
   <main id="ecran-qui-joue" class="ecran" hidden>
     <div class="carte">
@@ -76,20 +87,42 @@
     </form>
   </main>
 
-  <!-- ===== Écran 3 : bonjour (la carte des mondes viendra à l'étape 3) ===== -->
-  <main id="ecran-bonjour" class="ecran" hidden>
+  <!-- ===== Écran 3 : la carte des mondes (l'accueil du joueur) ===== -->
+  <main id="ecran-carte" class="ecran ecran-carte" hidden>
+    <div class="contenu-carte">
+      <h1 id="carte-titre" tabindex="-1"></h1>
+      <p class="sous-titre">Choisis un monde.</p>
+      <!-- La carte au trésor : un cadre parchemin, la mer dessinée derrière,
+           et les 9 îles posées dessus. Tout est fabriqué par js/app.js
+           à partir de js/mondes.js. -->
+      <div class="cadre-carte">
+        <div class="carte-aventure">
+          <div id="fond-mer" class="fond-mer" aria-hidden="true"></div>
+          <ul id="liste-mondes" class="iles"></ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Écran 4 : un monde (pour l'instant, « Bientôt ! ») ===== -->
+  <main id="ecran-monde" class="ecran ecran-monde" hidden>
     <div class="carte">
-      <div id="bonjour-avatar" class="avatar avatar-grand" aria-hidden="true"></div>
-      <h1 id="bonjour-titre" tabindex="-1"></h1>
-      <p id="bonjour-niveau" class="sous-titre"></p>
-      <p class="message">La carte des mondes arrive bientôt.</p>
-      <button type="button" id="bouton-changer" class="bouton bouton-secondaire">Changer de joueur</button>
+      <div id="monde-image" class="monde-image" aria-hidden="true"></div>
+      <h1 id="monde-titre" tabindex="-1"></h1>
+      <p class="sous-titre">Bientôt !</p>
+      <p class="message">
+        Ce monde se prépare. Touche la maison
+        <span aria-hidden="true">🏠</span>
+        pour revenir à la carte.
+      </p>
     </div>
   </main>
 
   <!-- Le comportement de l'application, chargé en dernier.
-       profils.js d'abord : app.js s'en sert. -->
+       Les listes (profils, mondes) d'abord : app.js s'en sert. -->
   <script src="js/profils.js"></script>
+  <script src="js/mondes.js"></script>
+  <script src="js/dessins.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
